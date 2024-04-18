@@ -5,6 +5,7 @@ import welcome.Rue;
 import welcome.utils.RandomSingleton;
 import welcome.Travaux;
 import java.util.HashMap;
+import java.util.Map;
 
 //LE PLACEMENT DES STICKY NE FONCTIONNE PAS --> sticky placement
 public class Strat106 extends Strat{
@@ -22,7 +23,7 @@ public class Strat106 extends Strat{
         return "La_Dudz";
     }
     
-    //Choisir parmi les 3 numéros dispos
+    //Choisir parmi les 3 numÃ©ros dispos
     @Override
     public int choixCombinaison(Jeu j, int joueur){
         HashMap<Integer, Integer>  map = getMap(j, joueur);
@@ -54,7 +55,7 @@ public class Strat106 extends Strat{
         }
     }
     
-    //Choisir de placer un numéro bis: jamais
+    //Choisir de placer un numÃ©ro bis: jamais
     @Override
     public int choixBis(Jeu j, int joueur, ArrayList<Integer> placeValide){
         return 0; // choixBis is never use
@@ -74,9 +75,9 @@ public class Strat106 extends Strat{
             return goldenEightPlacement(numero,placeValide); //the 3 golden 8
         
         }
-        //  else if(stickyNeighborPlacement(numero, map) != -1){ //Sticky neighbor is possible !
-        //     return stickyNeighborPlacement(numero, map);
-        // } 
+         else if(stickyNeighborPlacement(numero, map, placeValide) != -1){ //Sticky neighbor is possible !
+            return stickyNeighborPlacement(numero, map, placeValide);
+        } 
         // else if(){ //FakeNighbor is possible
             // return
         // }
@@ -89,7 +90,7 @@ public class Strat106 extends Strat{
 
     }
     
-    //Choisir le même numéro que celui de la carte quand l'action est un intérimaire
+    //Choisir le mÃªme numÃ©ro que celui de la carte quand l'action est un intÃ©rimaire
     @Override
     public int choixNumero(Jeu j, int joueur, int numero){
         int res=-1;
@@ -108,10 +109,15 @@ public class Strat106 extends Strat{
         return 5;
     }
     
-    //Met une barrière à une position aléatoire
+    //Met une barriÃ¨re Ã  une position alÃ©atoire
     @Override
     public int choixBarriere(Jeu j, int joueur,  ArrayList<Integer> placeValide){
         
+        // for (Integer valeur : placeValide) {
+        //     System.out.println("valeur= "+valeur+" index= "+placeValide.indexOf(valeur));
+        // }
+        
+    
         if(placeValide.contains(5)){//Fence block A and B
             
             return placeValide.indexOf(5);
@@ -200,6 +206,8 @@ public class Strat106 extends Strat{
             for (Integer cle : map.keySet()) {
                 if(map.get(cle) != -1) { //Compare a non free house
                     int diff = num - map.get(cle);
+                    // System.out.println("diff= "+diff);
+                    // System.out.println("cle= "+cle);
                 
                     if(cle == 0 || cle == 100 || cle == 200){ //Left end --> only right neighboor
                         if(diff == 1 && map.get(cle+1)==-1){//Greatter and right space is free
@@ -277,35 +285,36 @@ public class Strat106 extends Strat{
     }
 
 
-    public int stickyNeighborPlacement(int numero,HashMap<Integer, Integer> map){
+    public int stickyNeighborPlacement(int numero, HashMap<Integer, Integer> map, ArrayList<Integer> placeValide){
 
-        //REFAIRE EN PARCOURANT LES 6 DIFFERENTS BLOCKS DE 5 et avec map
+        if(stickyStreet(0,4,numero,map,placeValide) != -1){
 
-        if(stickyStreet(0,4,numero,map) != -1){
+            return stickyStreet(0,4,numero,map, placeValide);
 
-            return stickyStreet(0,4,numero,map);
         
-        } else if(stickyStreet(5,9,numero,map) != -1){
+        } 
+        else if(stickyStreet(5,9,numero,map,placeValide) != -1){
         
-            return stickyStreet(5,9,numero,map);
+            return stickyStreet(5,9,numero,map,placeValide);
         
-        } else if(stickyStreet(100,104,numero,map) != -1){
+        } else if(stickyStreet(100,104,numero,map,placeValide) != -1){
         
-            return stickyStreet(100,104,numero,map);
+            return stickyStreet(100,104,numero,map,placeValide);
         
-        } else if(stickyStreet(105,109,numero,map) != -1){
+        } else if(stickyStreet(105,109,numero,map,placeValide) != -1){
         
-            return stickyStreet(105,109,numero,map);
+            return stickyStreet(105,109,numero,map,placeValide);
         
-        } else if(stickyStreet(200,204,numero,map) != -1){
+        } else if(stickyStreet(200,204,numero,map,placeValide) != -1){
         
-            return stickyStreet(200,204,numero,map);
+            return stickyStreet(200,204,numero,map,placeValide);
         
-        } else if(stickyStreet(205,209,numero,map) != -1){
+        } else if(stickyStreet(205,209,numero,map,placeValide) != -1){
         
-            return stickyStreet(205,209,numero,map);
+            return stickyStreet(205,209,numero,map,placeValide);
         
-        } else {
+        } 
+        else {
         
             return -1;
         
@@ -322,27 +331,60 @@ public class Strat106 extends Strat{
                 
     }
 
-    //DISFONCTIONNEMENT ICI 
-    public int stickyStreet(int min, int max, int numero, HashMap<Integer, Integer> map){
+    /**
+     * 
+     * @param min beging of block
+     * @param max end of block
+     * @param numero to place
+     * @param map total house and number
+     * @param placeValide available space
+     * @return  the placement to make
+     */
+    public int stickyStreet(int min, int max, int numero, HashMap<Integer, Integer> map,ArrayList<Integer> placeValide){
+        
+        // System.out.println("placeValide");
+        // System.out.println(placeValide);
+        // System.out.println("map");
+        // System.out.println(map);
+
         for (int i = min; i <= max; i++) {
-            if(map.get(i) != -1) {
+            for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+                // System.out.println("Clé : " + entry.getKey() + ", Valeur : " + entry.getValue());
+                
                 int diff = numero-map.get(i);
-    
-                if(map.get(i) == min){ //Left end of line
-                    if (diff == 1){ //place on the right 
-                        return i;
+                if(placeValide.contains(entry.getValue()) && diff==1 || diff==-1 ){ //si place dispo 
+                    // System.out.println(entry.getValue());
+                    if(i == min){ //Left end of line
+                        if (diff == 1){ //place on the right 
+                            // System.out.println("index actuel = "+i+" num = "+map.get(i));
+                            // System.out.println("index choisi"+ (i+1) +"valeur = "+numero);
+                            // System.out.println("renvoie= "+placeValide.indexOf(i+1));
+                            return placeValide.indexOf(i+1);
+                        }
+                    } else if(i == max){ //Right end of line
+                        if(diff == -1){ //place on the left
+                            // System.out.println("index actuel = "+i+" num = "+map.get(i));
+                            // System.out.println("index choisi"+ (i-1) +"valeur = "+numero);
+                            // System.out.println("renvoie= "+placeValide.indexOf(i-1));
+                            return placeValide.indexOf(i-1); 
+                        }
+                    } else {
+                        if(diff == 1){ //place on the right 
+                            // System.out.println("index actuel = "+i+" num = "+map.get(i));
+                            // System.out.println("index choisi"+ (i+1) +"valeur = "+numero);
+                            // System.out.println("renvoie= "+placeValide.indexOf(i+1));
+                            return placeValide.indexOf(i+1); 
+                        } else if(diff == -1) { //place on the left
+                            // System.out.println("index actuel = "+i+" num = "+map.get(i));
+                            // System.out.println("index choisi"+ (i-1) +"valeur = "+numero);
+                            // System.out.println("renvoie= "+placeValide.indexOf(i-1));
+                            return placeValide.indexOf(i-1); 
+                        }
                     }
-                } else if(map.get(i) == max){ //Right end of line
-                    if(diff == -1){ //place on the left
-                        return i;
-                    }
-                } else if(diff == 1 || diff == -1) {
-                    return i;
                 }
             }
-        } 
+        }
         return -1;
-        
     }
     
     /**
