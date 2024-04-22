@@ -7,10 +7,11 @@ import welcome.Travaux;
 import java.util.HashMap;
 import java.util.Map;
 
-//LE PLACEMENT DES STICKY NE FONCTIONNE PAS --> sticky placement
 public class Strat106 extends Strat{
 
+    public static int eight =0;
     public Strat106(){
+    
     }
     
     @Override
@@ -28,24 +29,38 @@ public class Strat106 extends Strat{
     public int choixCombinaison(Jeu j, int joueur){
         HashMap<Integer, Integer>  map = getMap(j, joueur);
 
-        if(isTrivial(j)!=-1){ //1-2-14-15 is an option
+        // if(isTrivial(j)!=-1){ //1-2-14-15 is an option
             
-            // System.out.println("choice number"+isTrivial(j));
-            System.out.println("choosed is trivial "+((Travaux)j.numeros[isTrivial(j)].top()).getNumero());
-            return isTrivial(j);
+        //     // System.out.println("choice number"+isTrivial(j));
+        //     System.out.println("choosed is trivial "+((Travaux)j.numeros[isTrivial(j)].top()).getNumero());
+        //     return isTrivial(j);
 
-        } else if(isGarden(j)!=-1){ //A garden is an action
+        // } else 
+        
+        if(isGarden(j)!=-1){ //A garden is an action
             
             System.out.println("choosed is garden "+((Travaux)j.numeros[isGarden(j)].top()).getNumero());
             return isGarden(j);
-        
+            
+        } 
+        else if(isBarriere(j) != -1){
+            
+            return isBarriere(j);
         }
         else if(isStickyNeighbor(j,map)!=-1){ //a sticky neighbour is possible
             
             System.out.println("sticky is chosed"+((Travaux)j.actions[isStickyNeighbor(j,map)].top()).getNumero());
             return isStickyNeighbor(j,map);
-        
+            
         } 
+        // else if(isEight(j,map)!=-1){
+        //     return isEight(j,map);
+        // }
+        else if (isValorisation(j) != -1){
+            return isValorisation(j);
+        }
+         
+
         // else if(){ //a fake neighbour is possible //TO DO. hints: use Map variable
 
         // }         
@@ -74,19 +89,28 @@ public class Strat106 extends Strat{
             
             return goldenEightPlacement(numero,placeValide); //the 3 golden 8
         
-        }
-         else if(stickyNeighborPlacement(numero, map, placeValide) != -1){ //Sticky neighbor is possible !
+        } 
+        else if(stickyNeighborPlacement(numero, map, placeValide) != -1){ //Sticky neighbor is possible !
             return stickyNeighborPlacement(numero, map, placeValide);
         } 
+        else if (optimPlacement(numero, placeValide, map)!=-1){
+            return optimPlacement(numero,placeValide,map);
+        }
+        // else if(){ //Use interimaire
+           // return
+       // }
         // else if(){ //FakeNighbor is possible
             // return
         // }
-         // else if(){ //Use interimaire
-            // return
+
+        // else if(optimPlacement(numero, placeValide,map) != -1){
+        //     return optimPlacement(numero, placeValide,map);
         // }
-        else {
+        else{
             return RandomSingleton.getInstance().nextInt(placeValide.size());
+
         }
+        
 
     }
     
@@ -117,6 +141,9 @@ public class Strat106 extends Strat{
         //     System.out.println("valeur= "+valeur+" index= "+placeValide.indexOf(valeur));
         // }
         
+        //ligne 3: 205 210
+        //ligne 2: 105 110
+        //ligne 1:
     
         if(placeValide.contains(5)){//Fence block A and B
             
@@ -126,13 +153,13 @@ public class Strat106 extends Strat{
         
             return placeValide.indexOf(105);
         
-        } else if(placeValide.contains(110)){//Fence block D
-           
-            return placeValide.indexOf(110);
-        
         } else if(placeValide.contains(205)){//Fence block E
-        
+           
             return placeValide.indexOf(205);
+        
+        } else if(placeValide.contains(110)){//Fence block D
+        
+            return placeValide.indexOf(110);
         
         } else if(placeValide.contains(210)){//Fence block F
         
@@ -229,6 +256,51 @@ public class Strat106 extends Strat{
         }
         return -1;
     }
+
+    public int isValorisation(Jeu j){
+        for(int i=0; i<3;i++){
+            if(((Travaux)j.actions[i].top()).getAction() == 4){ //This is a valorisation !
+                return i;
+            }
+        }
+        //No valorisation in options
+        return -1;
+
+    }
+
+    /**
+     * 
+     * 
+     */
+    public int isBarriere(Jeu j){
+        for(int i=0; i<3;i++){
+            if(((Travaux)j.actions[i].top()).getAction() == 5){ //This is a Barriere !
+                return i;
+            }
+        }
+        //No Barriere in options
+        return -1;
+
+    }
+
+    public int isEight(Jeu j, HashMap<Integer,Integer> map){
+        for (int i = 0; i<3; i++) {
+            int num = ((Travaux) j.numeros[i].top()).getNumero();
+            if (num == 8) { // There is eight number
+                return i;
+                // if(map.get(4)!=-1){//there is free space for egiht
+                //     return i;
+                // } else if (map.get(105)!=-1){
+                //     return i;
+                // } else if(map.get(206)!=-1){return i;}
+            } 
+        }
+        //No eight golden number in options
+        return -1;
+
+    }
+
+    
     
     /**
      * trivialPlacement method implemenation
@@ -292,8 +364,7 @@ public class Strat106 extends Strat{
             return stickyStreet(0,4,numero,map, placeValide);
 
         
-        } 
-        else if(stickyStreet(5,9,numero,map,placeValide) != -1){
+        } else if(stickyStreet(5,9,numero,map,placeValide) != -1){
         
             return stickyStreet(5,9,numero,map,placeValide);
         
@@ -313,8 +384,7 @@ public class Strat106 extends Strat{
         
             return stickyStreet(205,209,numero,map,placeValide);
         
-        } 
-        else {
+        } else {
         
             return -1;
         
@@ -330,6 +400,167 @@ public class Strat106 extends Strat{
         // }
                 
     }
+    
+    public int optimPlacement(int numero, ArrayList<Integer> placeValide, HashMap<Integer, Integer> map) {
+        // int[] dataLeft1= {1,2,3};
+        // int[] dataLeft2= {101,102,103,104};
+        // int[] dataLeft3= {201,202,203,204,205};
+        // int[][] dataLeft={dataLeft1,dataLeft2,dataLeft3};
+
+        // int[] dataRight1= {5,6,7,8};
+        // int[] dataRight2= {106,107,108,109};
+        // int[] dataRight3= {207,208,209,210,211};
+        // int[][] dataRight={dataRight1,dataRight2,dataRight3};
+
+        // int[] eightPos = {4,105,206};
+
+        // if(numero>=2 && numero <=7){
+        //     int diff = map.get(0)-numero;
+        //     for (int i = 0; i <= 4; i++) {
+        //         if(diff)
+        //     }            
+        // }
+        if(numero ==2 || numero ==1){
+            if(placeValide.contains(0)){
+                return placeValide.indexOf(0);
+            } else if(placeValide.contains(100)){
+                return placeValide.indexOf(100);
+            } else if(placeValide.contains(200)){
+                return placeValide.indexOf(200);
+            }
+        } else if (numero ==2 || numero == 3 ){ //pos 1
+            if(placeValide.contains(1)){
+                return placeValide.indexOf(1);
+            } else if(placeValide.contains(101)){
+                return placeValide.indexOf(101);
+            } else if(placeValide.contains(201)){
+                return placeValide.indexOf(201);
+            }
+        } else if(numero == 4 || numero == 5){//pos2
+            if(placeValide.contains(2)){
+                return placeValide.indexOf(2);
+            } else if(placeValide.contains(102)){
+                return placeValide.indexOf(102);
+            } else if(placeValide.contains(203)){
+                return placeValide.indexOf(203);
+            }
+        } else if(numero == 3 || numero ==4 && placeValide.contains(202)){
+            return placeValide.indexOf(202);
+        } else if(numero == 5 || numero ==6){
+            if(placeValide.contains(103)){
+                return placeValide.indexOf(103);
+            } else if(placeValide.contains(204)){
+                return placeValide.indexOf(204);
+            }
+        } else if(numero == 6 || numero ==7){
+            if(placeValide.contains(3)){
+                return placeValide.indexOf(3);
+            } else if(placeValide.contains(104)){
+                return placeValide.indexOf(104);
+            } else if(placeValide.contains(205)){
+                return placeValide.indexOf(205);
+            }
+        } else if(numero ==8){
+            if(placeValide.contains(4)){
+                return placeValide.indexOf(4);
+            } else if(placeValide.contains(105)){
+                return placeValide.indexOf(105);
+            } else if(placeValide.contains(206)){
+                return placeValide.indexOf(206);
+            }
+        } else if(numero ==9 || numero ==10){ //1
+            if(placeValide.contains(5)){
+                return placeValide.indexOf(5);
+            } else if(placeValide.contains(106)){
+                return placeValide.indexOf(106);
+            } else if(placeValide.contains(207)){
+                return placeValide.indexOf(207);
+            }
+        } else if(numero ==10 || numero ==11){ //2
+            if(placeValide.contains(6)){
+                return placeValide.indexOf(6);
+            } else if(placeValide.contains(107)){
+                return placeValide.indexOf(107);
+            } else if(placeValide.contains(208)){
+                return placeValide.indexOf(208);
+            }
+        } else if(numero ==11 || numero ==12){//3
+            if(placeValide.contains(7)){
+                return placeValide.indexOf(7);
+            } else if(placeValide.contains(108)){
+                return placeValide.indexOf(108);
+            } else if(placeValide.contains(209)){
+                return placeValide.indexOf(209);
+            }
+        } else if(numero ==14 || numero == 15){
+            if(placeValide.contains(9)){
+                return placeValide.indexOf(9);
+            } else if(placeValide.contains(110)){
+                return placeValide.indexOf(110);
+            } else if(placeValide.contains(211)){
+                return placeValide.indexOf(211);
+            }
+        }
+         else if(numero ==13 || numero ==14){//4
+            if(placeValide.contains(8)){
+                return placeValide.indexOf(8);
+            } else if(placeValide.contains(109)){
+                return placeValide.indexOf(109);
+            } else if(placeValide.contains(210)){
+                return placeValide.indexOf(210);
+            }
+        
+        } 
+        return -1;
+
+        // if(numero>=2 && numero <=7){ //placer entre 1-3 OU 101-104 OU 201-205
+        //     for(int k=0; k<3;k++){
+        //         for(int i=0; i<dataLeft[k].length;i++){
+        //             if(placeValide.contains(dataLeft[k][i])){
+        //                 return placeValide.indexOf(dataLeft[k][i]);
+        //             }
+        //         }
+        //     }
+        //     return -1;
+        // } 
+        // else if( numero>=9 && numero<=14){//placer entre 5-8 OU 106-109 OU 207-210
+        //     for(int k=0; k<3;k++){
+        //         for(int i=0; i<dataRight[k].length;i++){
+        //             if(placeValide.contains(dataRight[k][i])){
+        //                 return placeValide.indexOf(dataRight[k][i]);
+        //             }
+        //         }
+        //     }
+        //     return -1;
+        // } else {
+        //     return -1;
+        // }
+    }
+    
+
+    // public int optimPlacement(int numero, ArrayList<Integer> placeValide,HashMap<Integer, Integer> map){
+        
+        // System.out.println(placeValide);
+        // System.out.println(map);
+        // if (numero>=3 && numero <=8){ 
+            //Block Gauche
+           
+            // int diff = numero -map.get(0);
+            // System.out.println("index"+map.get(0));
+            // int min =0;
+            // for(int i=1;i<5;i++){
+            //     if((diff > numero - i) && (map.get(i)!=-1)){
+            //         min = i;
+            //     }
+            // }
+            //min contient le meilleur emplacement
+
+        // } else {//Block droit
+
+        // }
+        // System.out.println(placeValide.contains(placeValide));
+        // return 0;
+    // }
 
     /**
      * 
