@@ -29,45 +29,138 @@ public class Strat106 extends Strat{
     public int choixCombinaison(Jeu j, int joueur){
         HashMap<Integer, Integer>  map = getMap(j, joueur);
 
-        // if(isTrivial(j)!=-1){ //1-2-14-15 is an option
+        if(isTrivial(j)!=-1 && trivialIsFree(isTrivial(j),map)){ //1-2-14-15 is an option
             
-        //     // System.out.println("choice number"+isTrivial(j));
-        //     System.out.println("choosed is trivial "+((Travaux)j.numeros[isTrivial(j)].top()).getNumero());
-        //     return isTrivial(j);
+            // System.out.println("choice number"+isTrivial(j));
+            System.out.println("choosed is trivial "+((Travaux)j.numeros[isTrivial(j)].top()).getNumero());
+            return isTrivial(j);
 
-        // } else 
+        } 
         
-        if(isGarden(j)!=-1){ //A garden is an action
-            
+        else if(isGarden(j)!=-1 && isCompaptible(isGarden(j),map)){
             System.out.println("choosed is garden "+((Travaux)j.numeros[isGarden(j)].top()).getNumero());
             return isGarden(j);
-            
-        } 
-        else if(isBarriere(j) != -1){
-            
-            return isBarriere(j);
         }
+           
         else if(isStickyNeighbor(j,map)!=-1){ //a sticky neighbour is possible
             
             System.out.println("sticky is chosed"+((Travaux)j.actions[isStickyNeighbor(j,map)].top()).getNumero());
             return isStickyNeighbor(j,map);
             
         } 
-        // else if(isEight(j,map)!=-1){
-        //     return isEight(j,map);
-        // }
-        else if (isValorisation(j) != -1){
-            return isValorisation(j);
+        else if(isBarriere(j) != -1){//ajouter is comptaptible? 
+            
+            return isBarriere(j);
         }
-         
-
-        // else if(){ //a fake neighbour is possible //TO DO. hints: use Map variable
-
-        // }         
+        else if (isValorisation(j) != -1){ //ajouter is comptaptible? 
+            return isValorisation(j);
+        }  
         else {
             System.out.println("Random is choosed...");
             return RandomSingleton.getInstance().nextInt(3);
         }
+            
+        
+    }
+    //return true if a trivial place is free
+    public boolean trivialIsFree(int numero,  HashMap<Integer, Integer> map){
+        if(numero == 1){
+            if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
+                return true;
+            }
+        } else if(numero ==15){
+            if(map.get(211)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
+                return true;
+            }
+        } else if(numero == 2){
+            if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
+                if((map.get(201)!=2 ||map.get(101)!=2 ||map.get(1)!=2)){
+                    return true;
+                }
+            } 
+        } else if(numero == 14){
+            if(map.get(209)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
+                if((map.get(208)!=14 ||map.get(109)!=14 ||map.get(8)!=14)){
+                    return true;
+                }
+            } 
+        }
+        
+        return false;
+    }
+
+    //return true si peut se potionner
+    public boolean isCompaptible(int numero,  HashMap<Integer, Integer> map){
+        //si ligne vide ok
+        //si sticky ok (ce que j'ai fais ci dessous)
+        int instance = 0;
+        int colles = 0;
+        
+        int[][] lignes={{0,9},{100,110},{200,211}};
+        for(int k=0; k<lignes.length;k++){
+            for(int i=lignes[k][0]; i<=lignes[k][1];i++){
+                //si numero existe deja dans la ligne --> finito
+                
+                if(map.get(i)==numero){
+                    instance ++;
+                    // return false;   
+                }
+
+                if(i+1<=lignes[k][1]){
+                    //si numero -1 et +1 collés --> finito
+                    if(map.get(i)==numero-1 && map.get(i+1)==numero+1){
+                        colles ++;
+                        // return false;                    
+                    }
+                }
+            }
+        }
+
+        if(instance>=2 || colles >=2){
+            return false;
+        } else {
+            return true;
+        }
+
+
+        // //On evalue le nombre d'instances du numero 
+
+        // for (int key : map.keySet()) {
+        //     if(map.get(key) == numero){
+        //         instance ++;
+        //     }
+        // }
+
+        // if(instance<=2){
+        //     // int num = ((Travaux) j.numeros[i].top()).getNumero();
+            
+        //     //Going accross the map
+        //     for (Integer cle : map.keySet()) {
+        //         if(map.get(cle) != -1) { //Compare a non free house
+        //             int diff = numero - map.get(cle);
+        //             // System.out.println("diff= "+diff);
+        //             // System.out.println("cle= "+cle);
+                
+        //             if(cle == 0 || cle == 100 || cle == 200){ //Left end --> only right neighboor
+        //                 if(diff == 1 && map.get(cle+1)==-1){//Greatter and right space is free
+        //                     return true; //Right Sticky neighbor
+        //                 }
+        //             } else if(cle==9 ||cle==110 ||cle==211){ //Right end --> only left neighboor
+        //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
+        //                     return true; //Left Sitcky neighbor
+        //                 }
+        //             } else { //Otherwise, right and left neighboor
+        //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
+        //                     return true; //Left Sitcky neighbor
+        //                 } else if(diff == 1 && map.get(cle+1)==-1){//Gretter and right space is free
+        //                     return true; //Right Sticky neighbor
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // return false;
+
     }
     
     //Choisir de placer un numÃ©ro bis: jamais
@@ -85,33 +178,23 @@ public class Strat106 extends Strat{
             
             return trivialPlacement(numero, placeValide); //num is Trivial + Trivial placement is free
 
-        } else if(goldenEightPlacement(numero,placeValide) != -1){ 
+        } 
+        else if(goldenEightPlacement(numero,placeValide) != -1){ 
             
             return goldenEightPlacement(numero,placeValide); //the 3 golden 8
         
         } 
+        //peut etre otpim et stickyy a interferer
         else if(stickyNeighborPlacement(numero, map, placeValide) != -1){ //Sticky neighbor is possible !
             return stickyNeighborPlacement(numero, map, placeValide);
         } 
-        else if (optimPlacement(numero, placeValide, map)!=-1){
+        else {
             return optimPlacement(numero,placeValide,map);
         }
-        // else if(){ //Use interimaire
-           // return
-       // }
-        // else if(){ //FakeNighbor is possible
-            // return
+        // else{
+        //     return RandomSingleton.getInstance().nextInt(placeValide.size());
+
         // }
-
-        // else if(optimPlacement(numero, placeValide,map) != -1){
-        //     return optimPlacement(numero, placeValide,map);
-        // }
-        else{
-            return RandomSingleton.getInstance().nextInt(placeValide.size());
-
-        }
-        
-
     }
     
     //Choisir le mÃªme numÃ©ro que celui de la carte quand l'action est un intÃ©rimaire
@@ -119,7 +202,7 @@ public class Strat106 extends Strat{
     public int choixNumero(Jeu j, int joueur, int numero){
         int res=-1;
         
-        //A COMPLETER
+        //A FAIRE ADELE !!
         
         if((res<(numero-2) || res>(numero+2)) || res<0)
             res=Math.max(0, RandomSingleton.getInstance().nextInt(5) + numero - 2) ;
@@ -145,25 +228,25 @@ public class Strat106 extends Strat{
         //ligne 2: 105 110
         //ligne 1:
     
-        if(placeValide.contains(5)){//Fence block A and B
+        if(placeValide.contains(205)){//Fence block A and B
             
-            return placeValide.indexOf(5);
-        
-        } else if(placeValide.contains(105)){//Fence block C 
-        
-            return placeValide.indexOf(105);
-        
-        } else if(placeValide.contains(205)){//Fence block E
-           
             return placeValide.indexOf(205);
+        
+        } else if(placeValide.contains(210)){//Fence block C 
+        
+            return placeValide.indexOf(210);
+        
+        } else if(placeValide.contains(105)){//Fence block E
+           
+            return placeValide.indexOf(105);
         
         } else if(placeValide.contains(110)){//Fence block D
         
             return placeValide.indexOf(110);
         
-        } else if(placeValide.contains(210)){//Fence block F
+        } else if(placeValide.contains(5)){//Fence block F
         
-            return placeValide.indexOf(210);
+            return placeValide.indexOf(5);
         
         } else { //No fence 
         
@@ -265,7 +348,6 @@ public class Strat106 extends Strat{
         }
         //No valorisation in options
         return -1;
-
     }
 
     /**
@@ -280,7 +362,6 @@ public class Strat106 extends Strat{
         }
         //No Barriere in options
         return -1;
-
     }
 
     public int isEight(Jeu j, HashMap<Integer,Integer> map){
@@ -311,8 +392,8 @@ public class Strat106 extends Strat{
 
     public int trivialPlacement(int numero, ArrayList<Integer> placeValide){
 
-        int[] dataLeftEnd= {0,100,200};
-        int[] dataRightEnd= {9,110,211};
+        int[] dataLeftEnd= {200,100,0};
+        int[] dataRightEnd= {211,110,9};
 
         if(numero == 1 || numero == 2 || numero ==14 || numero == 15){
             // System.out.println("lets place a trivial number");
@@ -343,7 +424,7 @@ public class Strat106 extends Strat{
      */
     public int goldenEightPlacement(int numero, ArrayList<Integer> placeValide){
     
-        int[] dataGoldenEight = {4, 105, 206};
+        int[] dataGoldenEight = {206, 105, 4};
         
         if(numero == 8){
             for(int i = 0; i<dataGoldenEight.length; i++) {
@@ -359,14 +440,13 @@ public class Strat106 extends Strat{
 
     public int stickyNeighborPlacement(int numero, HashMap<Integer, Integer> map, ArrayList<Integer> placeValide){
 
-        if(stickyStreet(0,4,numero,map,placeValide) != -1){
+        if(stickyStreet(200,204,numero,map,placeValide) != -1){
 
-            return stickyStreet(0,4,numero,map, placeValide);
-
+            return stickyStreet(200,204,numero,map, placeValide);
         
-        } else if(stickyStreet(5,9,numero,map,placeValide) != -1){
+        } else if(stickyStreet(205,209,numero,map,placeValide) != -1){
         
-            return stickyStreet(5,9,numero,map,placeValide);
+            return stickyStreet(205,209,numero,map,placeValide);
         
         } else if(stickyStreet(100,104,numero,map,placeValide) != -1){
         
@@ -376,13 +456,13 @@ public class Strat106 extends Strat{
         
             return stickyStreet(105,109,numero,map,placeValide);
         
-        } else if(stickyStreet(200,204,numero,map,placeValide) != -1){
+        } else if(stickyStreet(0,4,numero,map,placeValide) != -1){
         
-            return stickyStreet(200,204,numero,map,placeValide);
+            return stickyStreet(0,4,numero,map,placeValide);
         
-        } else if(stickyStreet(205,209,numero,map,placeValide) != -1){
+        } else if(stickyStreet(5,9,numero,map,placeValide) != -1){
         
-            return stickyStreet(205,209,numero,map,placeValide);
+            return stickyStreet(5,9,numero,map,placeValide);
         
         } else {
         
@@ -421,93 +501,93 @@ public class Strat106 extends Strat{
         //     }            
         // }
         if(numero ==2 || numero ==1){
-            if(placeValide.contains(0)){
-                return placeValide.indexOf(0);
+            if(placeValide.contains(2000)){
+                return placeValide.indexOf(200);
             } else if(placeValide.contains(100)){
                 return placeValide.indexOf(100);
-            } else if(placeValide.contains(200)){
-                return placeValide.indexOf(200);
+            } else if(placeValide.contains(0)){
+                return placeValide.indexOf(0);
             }
         } else if (numero ==2 || numero == 3 ){ //pos 1
-            if(placeValide.contains(1)){
-                return placeValide.indexOf(1);
+            if(placeValide.contains(201)){
+                return placeValide.indexOf(201);
             } else if(placeValide.contains(101)){
                 return placeValide.indexOf(101);
-            } else if(placeValide.contains(201)){
-                return placeValide.indexOf(201);
+            } else if(placeValide.contains(1)){
+                return placeValide.indexOf(1);
             }
         } else if(numero == 4 || numero == 5){//pos2
-            if(placeValide.contains(2)){
-                return placeValide.indexOf(2);
+            if(placeValide.contains(203)){
+                return placeValide.indexOf(203);
             } else if(placeValide.contains(102)){
                 return placeValide.indexOf(102);
-            } else if(placeValide.contains(203)){
-                return placeValide.indexOf(203);
+            } else if(placeValide.contains(2)){
+                return placeValide.indexOf(2);
             }
         } else if(numero == 3 || numero ==4 && placeValide.contains(202)){
             return placeValide.indexOf(202);
         } else if(numero == 5 || numero ==6){
-            if(placeValide.contains(103)){
-                return placeValide.indexOf(103);
-            } else if(placeValide.contains(204)){
+            if(placeValide.contains(204)){
                 return placeValide.indexOf(204);
+            } else if(placeValide.contains(103)){
+                return placeValide.indexOf(103);
             }
         } else if(numero == 6 || numero ==7){
-            if(placeValide.contains(3)){
-                return placeValide.indexOf(3);
+            if(placeValide.contains(205)){
+                return placeValide.indexOf(205);
             } else if(placeValide.contains(104)){
                 return placeValide.indexOf(104);
-            } else if(placeValide.contains(205)){
-                return placeValide.indexOf(205);
+            } else if(placeValide.contains(3)){
+                return placeValide.indexOf(3);
             }
         } else if(numero ==8){
-            if(placeValide.contains(4)){
-                return placeValide.indexOf(4);
+            if(placeValide.contains(206)){
+                return placeValide.indexOf(206);
             } else if(placeValide.contains(105)){
                 return placeValide.indexOf(105);
-            } else if(placeValide.contains(206)){
-                return placeValide.indexOf(206);
+            } else if(placeValide.contains(4)){
+                return placeValide.indexOf(4);
             }
         } else if(numero ==9 || numero ==10){ //1
-            if(placeValide.contains(5)){
-                return placeValide.indexOf(5);
+            if(placeValide.contains(207)){
+                return placeValide.indexOf(207);
             } else if(placeValide.contains(106)){
                 return placeValide.indexOf(106);
-            } else if(placeValide.contains(207)){
-                return placeValide.indexOf(207);
+            } else if(placeValide.contains(5)){
+                return placeValide.indexOf(5);
             }
         } else if(numero ==10 || numero ==11){ //2
-            if(placeValide.contains(6)){
-                return placeValide.indexOf(6);
+            if(placeValide.contains(208)){
+                return placeValide.indexOf(208);
             } else if(placeValide.contains(107)){
                 return placeValide.indexOf(107);
-            } else if(placeValide.contains(208)){
-                return placeValide.indexOf(208);
+            } else if(placeValide.contains(6)){
+                return placeValide.indexOf(6);
             }
         } else if(numero ==11 || numero ==12){//3
-            if(placeValide.contains(7)){
-                return placeValide.indexOf(7);
+            if(placeValide.contains(209)){
+                return placeValide.indexOf(209);
             } else if(placeValide.contains(108)){
                 return placeValide.indexOf(108);
-            } else if(placeValide.contains(209)){
-                return placeValide.indexOf(209);
+            } else if(placeValide.contains(7)){
+                return placeValide.indexOf(7);
             }
         } else if(numero ==14 || numero == 15){
-            if(placeValide.contains(9)){
-                return placeValide.indexOf(9);
+            if(placeValide.contains(211)){
+                return placeValide.indexOf(211);
             } else if(placeValide.contains(110)){
                 return placeValide.indexOf(110);
-            } else if(placeValide.contains(211)){
-                return placeValide.indexOf(211);
+            } else if(placeValide.contains(9)){
+                return placeValide.indexOf(2911);
             }
         }
          else if(numero ==13 || numero ==14){//4
-            if(placeValide.contains(8)){
-                return placeValide.indexOf(8);
+            if(placeValide.contains(210)){
+                return placeValide.indexOf(210);
             } else if(placeValide.contains(109)){
                 return placeValide.indexOf(109);
-            } else if(placeValide.contains(210)){
-                return placeValide.indexOf(210);
+            } else if(placeValide.contains(8)){
+                return placeValide.indexOf(8);
             }
         
         } 
