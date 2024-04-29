@@ -27,141 +27,161 @@ public class Strat106 extends Strat{
     //Choisir parmi les 3 numÃ©ros dispos
     @Override
     public int choixCombinaison(Jeu j, int joueur){
-        HashMap<Integer, Integer>  map = getMap(j, joueur);
 
-        if(isTrivial(j)!=-1 && trivialIsFree(isTrivial(j),map)){ //1-2-14-15 is an option
+
+        // j.joueurs[joueur].ville.lotissements.; parcourrir les lotissements pour voir s'ils sont pleins
+
+        HashMap<Integer, Integer>  map = getMap(j, joueur);
+        System.out.println("les choix sont");
+        for(int i=0; i<3;i++){
             
+            System.out.println(((Travaux) j.numeros[i].top()).getNumero()+"avec action "+((Travaux) j.actions[i].top()).getAction());
+        }
+
+        // if(isTrivial(j)!=-1 && isBuildable(map,((Travaux)j.numeros[isTrivial(j)].top()).getNumero())){ //1-2-14-15 is an option && trivialIsFree(isTrivial(j),map)
+        if(isTrivial(j)!=-1 && isBuildable(map,((Travaux)j.numeros[isTrivial(j)].top()).getNumero())){ //1-2-14-15 is an option && trivialIsFree(isTrivial(j),map)
+           
             // System.out.println("choice number"+isTrivial(j));
             System.out.println("choosed is trivial "+((Travaux)j.numeros[isTrivial(j)].top()).getNumero());
             return isTrivial(j);
 
         } 
         
-        else if(isGarden(j)!=-1 && isCompaptible(isGarden(j),map)){
+        if(isGarden(j)!=-1 && isBuildable(map, ((Travaux)j.numeros[isGarden(j)].top()).getNumero())){ // && isCompaptible(isGarden(j),map)
             System.out.println("choosed is garden "+((Travaux)j.numeros[isGarden(j)].top()).getNumero());
             return isGarden(j);
         }
-           
+
         else if(isStickyNeighbor(j,map)!=-1){ //a sticky neighbour is possible
             
-            System.out.println("sticky is chosed"+((Travaux)j.actions[isStickyNeighbor(j,map)].top()).getNumero());
+            System.out.println("sticky is chosed"+((Travaux)j.numeros[isStickyNeighbor(j,map)].top()).getNumero());
             return isStickyNeighbor(j,map);
             
         } 
-        else if(isBarriere(j) != -1){//ajouter is comptaptible? 
+
+        else if(isBarriere(j) != -1 && isBuildable(map, ((Travaux)j.numeros[isBarriere(j)].top()).getNumero())){//ajouter is comptaptible? 
             
             return isBarriere(j);
         }
-        else if (isValorisation(j) != -1){ //ajouter is comptaptible? 
+
+        else if (isValorisation(j) != -1 && isBuildable(map, ((Travaux)j.numeros[isValorisation(j)].top()).getNumero())){ //ajouter is comptaptible? 
             return isValorisation(j);
         }  
+        
+        else if(isIntermaire(j, map) != -1){
+            return isIntermaire(j, map);
+        }
+    
+        //faire un if le numero fait remplir un lotissement
         else {
             System.out.println("Random is choosed...");
             return RandomSingleton.getInstance().nextInt(3);
         }
+        
             
         
     }
     //return true if a trivial place is free
-    public boolean trivialIsFree(int numero,  HashMap<Integer, Integer> map){
-        if(numero == 1){
-            if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
-                return true;
-            }
-        } else if(numero ==15){
-            if(map.get(211)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
-                return true;
-            }
-        } else if(numero == 2){
-            if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
-                if((map.get(201)!=2 ||map.get(101)!=2 ||map.get(1)!=2)){
-                    return true;
-                }
-            } 
-        } else if(numero == 14){
-            if(map.get(209)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
-                if((map.get(208)!=14 ||map.get(109)!=14 ||map.get(8)!=14)){
-                    return true;
-                }
-            } 
-        }
+    // public boolean trivialIsFree(int numero,  HashMap<Integer, Integer> map){
+    //     if(numero == 1){
+    //         if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
+    //             return true;
+    //         }
+    //     } else if(numero ==15){
+    //         if(map.get(211)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
+    //             return true;
+    //         }
+    //     } else if(numero == 2){
+    //         if(map.get(200)==-1 ||map.get(100)==-1 ||map.get(0)==-1){
+    //             if((map.get(201)!=2 ||map.get(101)!=2 ||map.get(1)!=2)){
+    //                 return true;
+    //             }
+    //         } 
+    //     } else if(numero == 14){
+    //         if(map.get(209)==-1 ||map.get(110)==-1 ||map.get(9)==-1){
+    //             if((map.get(208)!=14 ||map.get(109)!=14 ||map.get(8)!=14)){
+    //                 return true;
+    //             }
+    //         } 
+    //     }
         
-        return false;
-    }
+    //     return false;
+    // }
 
     //return true si peut se potionner
-    public boolean isCompaptible(int numero,  HashMap<Integer, Integer> map){
-        //si ligne vide ok
-        //si sticky ok (ce que j'ai fais ci dessous)
-        int instance = 0;
-        int colles = 0;
+    // public boolean isCompaptible(int numero,  HashMap<Integer, Integer> map){
+    //     //si ligne vide ok
+    //     //si sticky ok (ce que j'ai fais ci dessous)
+    //     int instance = 0;
+    //     int colles = 0;
         
-        int[][] lignes={{0,9},{100,110},{200,211}};
-        for(int k=0; k<lignes.length;k++){
-            for(int i=lignes[k][0]; i<=lignes[k][1];i++){
-                //si numero existe deja dans la ligne --> finito
+    //     int[][] lignes={{0,9},{100,110},{200,211}};
+    //     for(int k=0; k<lignes.length;k++){
+    //         for(int i=lignes[k][0]; i<=lignes[k][1];i++){
+    //             //si numero existe deja dans la ligne --> finito
                 
-                if(map.get(i)==numero){
-                    instance ++;
-                    // return false;   
-                }
+    //             if(map.get(i)==numero){
+    //                 instance ++;
+    //                 // return false;   
+    //             }
 
-                if(i+1<=lignes[k][1]){
-                    //si numero -1 et +1 collés --> finito
-                    if(map.get(i)==numero-1 && map.get(i+1)==numero+1){
-                        colles ++;
-                        // return false;                    
-                    }
-                }
-            }
-        }
-
-        if(instance>=2 || colles >=2){
-            return false;
-        } else {
-            return true;
-        }
-
-
-        // //On evalue le nombre d'instances du numero 
-
-        // for (int key : map.keySet()) {
-        //     if(map.get(key) == numero){
-        //         instance ++;
-        //     }
-        // }
-
-        // if(instance<=2){
-        //     // int num = ((Travaux) j.numeros[i].top()).getNumero();
+    //             if(i+1<=lignes[k][1]){
+    //                 //si numero -1 et +1 collés --> finito
+    //                 if(map.get(i)==numero-1 && map.get(i+1)==numero+1){
+    //                     colles ++;
+    //                     // return false;                    
+    //                 }
+    //             }
+    //         }
             
-        //     //Going accross the map
-        //     for (Integer cle : map.keySet()) {
-        //         if(map.get(cle) != -1) { //Compare a non free house
-        //             int diff = numero - map.get(cle);
-        //             // System.out.println("diff= "+diff);
-        //             // System.out.println("cle= "+cle);
-                
-        //             if(cle == 0 || cle == 100 || cle == 200){ //Left end --> only right neighboor
-        //                 if(diff == 1 && map.get(cle+1)==-1){//Greatter and right space is free
-        //                     return true; //Right Sticky neighbor
-        //                 }
-        //             } else if(cle==9 ||cle==110 ||cle==211){ //Right end --> only left neighboor
-        //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
-        //                     return true; //Left Sitcky neighbor
-        //                 }
-        //             } else { //Otherwise, right and left neighboor
-        //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
-        //                     return true; //Left Sitcky neighbor
-        //                 } else if(diff == 1 && map.get(cle+1)==-1){//Gretter and right space is free
-        //                     return true; //Right Sticky neighbor
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        // return false;
+    //     }
 
-    }
+    //     if(instance>=2 || colles >=2){
+    //         return false;
+    //     } else {
+    //         return true;
+    //     }
+
+
+    //     // //On evalue le nombre d'instances du numero 
+
+    //     // for (int key : map.keySet()) {
+    //     //     if(map.get(key) == numero){
+    //     //         instance ++;
+    //     //     }
+    //     // }
+
+    //     // if(instance<=2){
+    //     //     // int num = ((Travaux) j.numeros[i].top()).getNumero();
+            
+    //     //     //Going accross the map
+    //     //     for (Integer cle : map.keySet()) {
+    //     //         if(map.get(cle) != -1) { //Compare a non free house
+    //     //             int diff = numero - map.get(cle);
+    //     //             // System.out.println("diff= "+diff);
+    //     //             // System.out.println("cle= "+cle);
+                
+    //     //             if(cle == 0 || cle == 100 || cle == 200){ //Left end --> only right neighboor
+    //     //                 if(diff == 1 && map.get(cle+1)==-1){//Greatter and right space is free
+    //     //                     return true; //Right Sticky neighbor
+    //     //                 }
+    //     //             } else if(cle==9 ||cle==110 ||cle==211){ //Right end --> only left neighboor
+    //     //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
+    //     //                     return true; //Left Sitcky neighbor
+    //     //                 }
+    //     //             } else { //Otherwise, right and left neighboor
+    //     //                 if(diff == -1 && map.get(cle-1)==-1){ //Smaller and left space is free
+    //     //                     return true; //Left Sitcky neighbor
+    //     //                 } else if(diff == 1 && map.get(cle+1)==-1){//Gretter and right space is free
+    //     //                     return true; //Right Sticky neighbor
+    //     //                 }
+    //     //             }
+    //     //         }
+    //     //     }
+    //     // }
+    //     // return false;
+
+    // }
     
     //Choisir de placer un numÃ©ro bis: jamais
     @Override
@@ -188,32 +208,45 @@ public class Strat106 extends Strat{
         else if(stickyNeighborPlacement(numero, map, placeValide) != -1){ //Sticky neighbor is possible !
             return stickyNeighborPlacement(numero, map, placeValide);
         } 
-        else {
+        else if(optimPlacement(numero, placeValide, map) != -1){
             return optimPlacement(numero,placeValide,map);
         }
-        // else{
-        //     return RandomSingleton.getInstance().nextInt(placeValide.size());
-
-        // }
+        else{ 
+            System.out.println("ramdom placement");
+            return RandomSingleton.getInstance().nextInt(placeValide.size());
+        }
     }
     
     //Choisir le mÃªme numÃ©ro que celui de la carte quand l'action est un intÃ©rimaire
     @Override
     public int choixNumero(Jeu j, int joueur, int numero){
-        int res=-1;
+        HashMap<Integer, Integer>  map = getMap(j, joueur);
+
+        for(int k=-2; k<3; k++){
+            if(numero +k>=1 && numero +k <= 15 && isBuildable(map, (numero+k))){
+                return numero+k;
+            }
+        }
+        // int res=-1;
+        return numero;
         
         //A FAIRE ADELE !!
         
-        if((res<(numero-2) || res>(numero+2)) || res<0)
-            res=Math.max(0, RandomSingleton.getInstance().nextInt(5) + numero - 2) ;
-        return res;
+        // if((res<(numero-2) || res>(numero+2)) || res<0)
+        //     res=Math.max(0, RandomSingleton.getInstance().nextInt(5) + numero - 2) ;
+        // return res;
     }
     
     //Valorise toujours une taille de lotissements de 5
     @Override
-    public int valoriseLotissement(Jeu j, int joueur){        
-
-        return 5;
+    public int valoriseLotissement(Jeu j, int joueur){    
+        System.out.println("valeur lotrissement de 5 est "+ j.joueurs[joueur].ville.avancementPrixLotissement[4]);
+        if(j.joueurs[0].ville.avancementPrixLotissement[4]!=4){
+            return 5;
+        } else if (j.joueurs[0].ville.avancementPrixLotissement[0]!=1){
+            return 1;
+        }
+        return 2;
     }
     
     //Met une barriÃ¨re Ã  une position alÃ©atoire
@@ -381,6 +414,152 @@ public class Strat106 extends Strat{
 
     }
 
+    public int isIntermaire(Jeu j, HashMap<Integer,Integer> map){
+        for(int i=0; i<3;i++){
+            if(((Travaux)j.actions[i].top()).getAction() == 1){ //This is a Interimaire !
+                for(int k=-2; k<3; k++){
+                    if(isBuildable(map, ((Travaux)j.numeros[i].top()).getNumero()+k)){
+                        return i;
+                    }
+                }
+            }
+        }
+        //No interimaire in options
+        return -1;
+    }
+
+    //return true if number is buildable
+    public boolean isBuildable(HashMap<Integer,Integer> map, int numero){
+        
+        boolean street1 = true;
+        boolean street2 = true;
+        boolean street3 = true;
+        
+        for (int i = 0; i < 10; i++) { //street 1
+            if (map.containsKey(i) && map.get(i) !=-1) {
+                int value = map.get(i); 
+                
+                //test presence 
+                if(numero == value){
+                    System.out.println("street1 is false");
+
+                    street1 =false;
+                    break;
+                }
+
+                //test collé
+                if(i!=9){
+                    int valueNext=map.get(i+1);
+                    if(numero > value && numero < valueNext && valueNext!=-1){
+                        System.out.println("street1 is false");
+                        
+                        street1 = false;
+                        break;
+                    }
+                }
+                
+                //test gauche
+                if(i==0 && numero <map.get(i)){
+                    System.out.println("street1 is false");
+                    street1 = false;
+                    break;
+                }
+                //test droit
+                if(i==9 && numero > map.get(i)){
+                    System.out.println("street1 is false");
+                    street1 = false;
+                    break;
+                }
+
+            }
+        }
+
+        for (int i = 100; i < 111; i++) { //street 2
+            if (map.containsKey(i)) {
+                int value = map.get(i); 
+                
+                //test presence 
+                if(numero == value){
+                    System.out.println("street2 is false");
+
+                    street2 =false;
+                    break;
+                }
+
+                //test collé
+                if(i!=110){
+                    int valueNext=map.get(i+1);
+                    if(numero > value && numero < valueNext && valueNext!=-1){
+                        System.out.println("street2 is false");
+                        street2 = false;
+                        break;
+                    }
+                }
+
+                //test gauche
+                if(i==100 && numero <map.get(i)){
+                    System.out.println("street2 is false");
+                    street2 = false;
+                    break;
+                }
+                
+                //test droit
+                if(i==110 && numero > map.get(i)){
+                    System.out.println("street2 is false");
+                    street2 = false;
+                    break;
+                }
+
+            }
+        }
+
+        for (int i = 200; i < 212; i++) { //street 3
+            if (map.containsKey(i)) {
+                int value = map.get(i); 
+                
+                //test presence 
+                if(numero == value){
+                    System.out.println("street3 is false");
+                    
+                    street3 =false;
+                    break;
+                }
+
+                //test collé
+                if(i!=211){
+                    int valueNext=map.get(i+1);
+                    if(numero > value && numero < valueNext && valueNext!=-1){
+                        System.out.println("street3 is false");
+                        street3 = false;
+                        break;
+                    }
+                }
+                //test gauche
+                if(i==200 && numero <map.get(i)){
+                    System.out.println("street3 is false");
+                    street3 = false;
+                    break;
+                }
+                //test droit
+                if(i==211 && numero > map.get(i)){
+                    System.out.println("street3 is false");
+                    street3 = false;
+                    break;
+                }
+
+            }
+        }
+        
+
+        if(!street1 && !street2 && !street3){
+            System.out.println(numero + "n'est pas buildable");
+            return false;
+        } else {
+            System.out.println(numero  + "Est buildable");
+            return true;
+        }
+    }
+
     
     
     /**
@@ -500,8 +679,10 @@ public class Strat106 extends Strat{
         //         if(diff)
         //     }            
         // }
-        if(numero ==2 || numero ==1){
-            if(placeValide.contains(2000)){
+        System.out.println("les places valides sont");
+        System.out.println(placeValide);
+        if(numero ==2 || numero == 1){
+            if(placeValide.contains(200)){
                 return placeValide.indexOf(200);
             } else if(placeValide.contains(100)){
                 return placeValide.indexOf(100);
@@ -548,7 +729,7 @@ public class Strat106 extends Strat{
             } else if(placeValide.contains(4)){
                 return placeValide.indexOf(4);
             }
-        } else if(numero ==9 || numero ==10){ //1
+        } else if(numero ==9 || numero ==10){
             if(placeValide.contains(207)){
                 return placeValide.indexOf(207);
             } else if(placeValide.contains(106)){
@@ -556,7 +737,7 @@ public class Strat106 extends Strat{
             } else if(placeValide.contains(5)){
                 return placeValide.indexOf(5);
             }
-        } else if(numero ==10 || numero ==11){ //2
+        } else if(numero ==10 || numero ==11){
             if(placeValide.contains(208)){
                 return placeValide.indexOf(208);
             } else if(placeValide.contains(107)){
@@ -564,7 +745,7 @@ public class Strat106 extends Strat{
             } else if(placeValide.contains(6)){
                 return placeValide.indexOf(6);
             }
-        } else if(numero ==11 || numero ==12){//3
+        } else if(numero ==11 || numero ==12){
             if(placeValide.contains(209)){
                 return placeValide.indexOf(209);
             } else if(placeValide.contains(108)){
@@ -573,25 +754,27 @@ public class Strat106 extends Strat{
                 return placeValide.indexOf(7);
             }
         } else if(numero ==14 || numero == 15){
-            if(placeValide.contains(211)){
-                return placeValide.indexOf(211);
-            } else if(placeValide.contains(110)){
+            if(placeValide.contains(110)){
                 return placeValide.indexOf(110);
+            } else if(placeValide.contains(211)){
+                return placeValide.indexOf(211);
             } else if(placeValide.contains(9)){
-                return placeValide.indexOf(2911);
+                return placeValide.indexOf(9);
             }
         }
-         else if(numero ==13 || numero ==14){//4
-            if(placeValide.contains(210)){
-                return placeValide.indexOf(210);
-            } else if(placeValide.contains(109)){
+        else if(numero ==13 || numero ==14){
+            if(placeValide.contains(109)){
                 return placeValide.indexOf(109);
+            } else if(placeValide.contains(210)){
+                return placeValide.indexOf(210);
             } else if(placeValide.contains(8)){
                 return placeValide.indexOf(8);
             }
         
         } 
-        return -1;
+            System.out.println("optim placement is impossible");
+            return -1;
+        
 
         // if(numero>=2 && numero <=7){ //placer entre 1-3 OU 101-104 OU 201-205
         //     for(int k=0; k<3;k++){
